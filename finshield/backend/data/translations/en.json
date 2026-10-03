@@ -1,8 +1,7 @@
 {
-  "risk_level": {"low": "Low concern", "moderate": "Moderate concern", "high": "High concern"},
+  "risk_level_display": {"low": "LOW CONCERN", "moderate": "MODERATE CONCERN", "high": "HIGH CONCERN"},
   "no_flags": "No clear warning signs were found in this message. Still, verify every financial claim independently.",
   "detected_intro": "Several warning signs were found. Verify this information before sending money.",
-  "explanation_intro": "Risk level: ",
   "verification_steps": [
     "Verify the claimed organization independently using an official source (e.g. sebi.gov.in).",
     "Check the original source of the message.",
@@ -13,5 +12,26 @@
     "Do not transfer money based only on this message.",
     "Pause and think before taking any action."
   ],
-  "uncertainty": "This analysis identifies risk indicators and verification gaps. It cannot determine with certainty that the content is fraudulent from message content alone, and it is not investment advice."
+  "uncertainty": "This analysis identifies risk indicators and verification gaps. It cannot determine with certainty that the content is fraudulent from message content alone, and it is not investment advice.",
+  "categories": {
+    "guaranteed_return": {"label": "Guaranteed Return", "explanation": "A claim of \"{first}\" is an extraordinary claim that requires strong independent verification."},
+    "urgency_fomo": {"label": "Urgency / FOMO", "explanation": "These phrases create pressure to act quickly and discourage independent checking."},
+    "payment_pressure": {"label": "Payment Request", "explanation": "Avoid transferring money until the offer and the entity have been independently verified."},
+    "credential_request": {"label": "Credential Request", "explanation": "Never share OTPs, passwords, UPI PINs, or remote-access permissions with anyone."},
+    "authority_impersonation": {"label": "Regulatory Claim", "explanation": "The message claims \"{first}\". Verify this through the official regulator. A claim in a message does not by itself make an offer legitimate."},
+    "social_group_migration": {"label": "Private Group Migration", "explanation": "Moving communication to a private group can make independent verification more difficult."},
+    "promotional_language": {"label": "Promotional Language", "explanation": "Promotional language presented as opportunity is a caution signal — check the underlying evidence yourself."},
+    "evidence_weakness": {"label": "Weak Evidence", "explanation": "Claims without a source or with vague evidence need independent verification."},
+    "impersonation": {"label": "Impersonation / Account Threat", "explanation": "Threats about account suspension or urgent KYC are a common impersonation tactic. Contact the institution through its official channel — never through a link or number in the message."},
+    "suspicious_link": {"label": "Suspicious Link", "explanation": "This message contains a link that should not be opened without checking its destination and the sender independently."},
+    "social_proof": {"label": "Social Proof Pressure", "explanation": "Appeals to how many others have joined apply social pressure and are not evidence that an offer is genuine."}
+  },
+  "assessment_labels": {
+    "extraction": "Content extraction",
+    "signals": "Risk signals",
+    "structured": "Structured assessment",
+    "evidence": "Evidence",
+    "explanation": "Explanation",
+    "none": "None detected"
+  }
 }

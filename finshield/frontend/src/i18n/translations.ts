@@ -10,6 +10,7 @@ export const strings = {
   en: {
     tagline: "Don't trust. Verify.",
     taglineSub: 'Pause. Verify. Decide safely.',
+    riskLabels: { low: 'LOW CONCERN', moderate: 'MODERATE CONCERN', high: 'HIGH CONCERN' },
     modeMessage: 'Message',
     modeClaim: 'Financial Claim',
     modeScreenshot: 'Screenshot',
@@ -60,6 +61,7 @@ export const strings = {
   hi: {
     tagline: 'भरोसा न करें। पुष्टि करें।',
     taglineSub: 'रुकें। पुष्टि करें। सुरक्षित निर्णय लें।',
+    riskLabels: { low: 'कम जोखिम', moderate: 'मध्यम जोखिम', high: 'उच्च जोखिम' },
     modeMessage: 'संदेश',
     modeClaim: 'वित्तीय दावा',
     modeScreenshot: 'स्क्रीनशॉट',
@@ -106,6 +108,7 @@ export const strings = {
   mr: {
     tagline: 'विश्वास ठेवू नका. पडताळणी करा.',
     taglineSub: 'थांबा. पडताळणी करा. सुरक्षित निर्णय घ्या.',
+    riskLabels: { low: 'कमी जोखीम', moderate: 'मध्यम जोखीम', high: 'उच्च जोखीम' },
     modeMessage: 'संदेश',
     modeClaim: 'आर्थिक दावा',
     modeScreenshot: 'स्क्रीनशॉट',

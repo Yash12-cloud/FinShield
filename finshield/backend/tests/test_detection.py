@@ -52,3 +52,18 @@ def test_impersonation_and_social_proof_and_link_detected():
     cats = detect("URGENT KYC: your account will be suspended. Update KYC here http://sebi-kyc.xyz. Thousands already invested!")
     ids = {c["id"] for c in cats}
     assert {"impersonation", "suspicious_link", "social_proof"} <= ids
+
+def test_localization_hi_mr():
+    from backend.utils.i18n import localize_categories, localize_assessment_labels
+    cats = detect(DEMO)
+    hi = localize_categories(cats, "hi")
+    assert any(any("\u0900" <= ch <= "\u097F" for ch in c["label"]) for c in hi)
+    assert all(c["label"] for c in hi)
+    assert localize_assessment_labels("mr").get("signals")
+
+
+def test_fallback_is_localized():
+    from backend.services.llm import _fallback
+    for loc, needle in [("hi", "जोखिम"), ("mr", "जोखीम")]:
+        out = _fallback({"risk_categories": [{"label": "x", "explanation": "y"}], "risk_level": "HIGH CONCERN"}, loc)
+        assert needle in out["uncertainty"]

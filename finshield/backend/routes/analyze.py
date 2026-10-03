@@ -7,7 +7,7 @@ from backend.services.mercury import decide
 from backend.services.evidence import build_evidence
 from backend.services.llm import explain
 from backend.services.ocr import extract_text
-from backend.utils.i18n import SUPPORTED
+from backend.utils.i18n import SUPPORTED, localize_categories, localize_assessment_labels, risk_text
 
 router = APIRouter(prefix="/api/v1")
 
@@ -20,58 +20,66 @@ def _safe_locale(locale):
 
 def _run_pipeline(text: str, locale: str = "en", extracted: bool = False) -> AnalyzeResponse:
     locale = _safe_locale(locale)
-    categories = detect(text)
+    raw_categories = detect(text)
     reg_claims = registration_claims(text)
-    category_level = level(categories)
-    mercury = decide(text, categories, category_level)
+    category_level = level(raw_categories)
+    mercury = decide(text, raw_categories, category_level)
     mercury_level = str(mercury.get("risk_level", mercury_fallback_level(category_level))).lower()
     display_level = LEVEL_DISPLAY.get(mercury_level, category_level)
+
+    categories = localize_categories(raw_categories, locale)
+    labels = localize_assessment_labels(locale)
     evidence = build_evidence(categories, text, reg_claims)
     llm_out = explain(text, {
         "risk_level": display_level,
+        "risk_level_local": risk_text(display_level, locale),
         "content_type": mercury.get("content_type", "unclear"),
         "risk_categories": categories,
         "mercury": mercury,
         "evidence": evidence,
     }, locale=locale)
+
+    requires = bool(mercury.get("requires_verification", bool(raw_categories)))
     assessment = {
         "steps": [
             {
-                "label": "Content extraction",
+                "label": labels.get("extraction", "Content extraction"),
                 "detail": "Text extracted from screenshot (OCR) and reviewed by the user."
                 if extracted else "Text received directly from the user.",
                 "status": "done",
             },
             {
-                "label": "Risk signals",
-                "detail": ", ".join(c["label"] for c in categories) if categories else "None detected",
+                "label": labels.get("signals", "Risk signals"),
+                "detail": ", ".join(c["label"] for c in categories) if categories else labels.get("none", "None detected"),
                 "status": "done",
             },
             {
-                "label": "Structured assessment",
-                "detail": f"Risk level: {display_level}; Verification required: {'yes' if bool(mercury.get('requires_verification', bool(categories))) else 'no'}",
+                "label": labels.get("structured", "Structured assessment"),
+                "detail": f"{risk_text(display_level, locale)}; "
+                          f"{'verification required' if requires else 'no special verification needed'}",
                 "status": "done",
             },
             {
-                "label": "Evidence",
+                "label": labels.get("evidence", "Evidence"),
                 "detail": "Pattern-based signals separated from sources that require independent verification.",
                 "status": "done",
             },
             {
-                "label": "Explanation",
+                "label": labels.get("explanation", "Explanation"),
                 "detail": "Generated from the detected signals and available evidence.",
                 "status": "done",
             },
         ],
-        "deterministic_categories": [c["id"] for c in categories],
+        "deterministic_categories": [c["id"] for c in raw_categories],
         "mercury_source": mercury.get("source", "deterministic_fallback"),
-        "limitation": "FinShield identifies risk indicators and verification gaps. It cannot determine with certainty whether a message is fraudulent from its content alone.",
+        "limitation": "FinShield identifies risk indicators and verification gaps. It cannot determine with certainty "
+                      "whether a message is fraudulent from its content alone.",
     }
     return AnalyzeResponse(
         risk_level=display_level,
         content_type=mercury.get("content_type", "unclear"),
         severity=str(mercury.get("severity", mercury_level)),
-        requires_verification=bool(mercury.get("requires_verification", bool(categories))),
+        requires_verification=requires,
         risk_categories=categories,
         mercury=mercury,
         evidence=evidence,
