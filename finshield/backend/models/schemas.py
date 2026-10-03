@@ -1,8 +1,14 @@
 from pydantic import BaseModel
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Optional
 
 class AnalyzeTextRequest(BaseModel):
     text: str
+    locale: Optional[str] = "en"
+
+class ExtractResponse(BaseModel):
+    text: str
+    ok: bool
+    message: str
 
 class AnalyzeResponse(BaseModel):
     risk_level: str
@@ -16,3 +22,4 @@ class AnalyzeResponse(BaseModel):
     verification_steps: List[str]
     safe_next_steps: List[str]
     uncertainty: str
+    assessment: Dict[str, Any]

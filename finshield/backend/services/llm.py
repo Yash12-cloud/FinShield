@@ -1,4 +1,4 @@
-import os, json
+import json
 
 try:
     from openai import OpenAI
@@ -6,18 +6,34 @@ except Exception:
     OpenAI = None
 
 from backend.utils.config import LLM_API_KEY, LLM_MODEL, LLM_BASE_URL
+from backend.utils.i18n import load as load_locale
 
-def explain(user_text: str, analysis: dict) -> dict:
-    """LLM generates the user-facing explanation from structured analysis.
-    Deterministic fallback when no key is configured."""
+LANG_NAME = {"en": "English", "hi": "Hindi", "mr": "Marathi"}
+
+GUARDRAILS = (
+    "You are FinShield, an investor-protection explainer. Explain the structured risk analysis to a "
+    "first-time Indian investor in simple, everyday language. You must follow these rules strictly:\n"
+    "- Never give investment advice, buy/sell/hold recommendations, price predictions, or stock tips.\n"
+    "- Never state with certainty that the content is a scam; describe risk indicators and uncertainty.\n"
+    "- Never invent risk indicators, evidence, or registration status that is not in the given analysis.\n"
+    "- Do not override the provided deterministic findings; explain them.\n"
+    "- Answer only in the requested language.\n\n"
+    "Return ONLY a JSON object with keys: explanation (string), verification_steps (list of strings), "
+    "safe_next_steps (list of strings), uncertainty (string)."
+)
+
+
+def explain(user_text: str, analysis: dict, locale: str = "en") -> dict:
+    """LLM explains the structured analysis. Deterministic fallback if unavailable.
+    The LLM never overrides deterministic rules — it only explains them."""
     if LLM_API_KEY and OpenAI:
         try:
             client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL or None)
             prompt = (
-                "You are FinShield, an investor-protection explainer. From the structured analysis of a financial message, "
-                "produce a JSON object with keys: explanation, verification_steps (list), safe_next_steps (list), uncertainty (string). "
-                "Simple language, Hindi if the message is Hindi. No investment advice, no price predictions, no tips.\n\n"
-                "Message: " + user_text + "\n\nAnalysis:\n" + json.dumps(analysis, default=str, ensure_ascii=False)
+                GUARDRAILS
+                + "\n\nLanguage: " + LANG_NAME.get(locale, "English")
+                + "\n\nMessage:\n" + user_text
+                + "\n\nStructured analysis:\n" + json.dumps(analysis, default=str, ensure_ascii=False)
             )
             resp = client.chat.completions.create(
                 model=LLM_MODEL,
@@ -30,28 +46,25 @@ def explain(user_text: str, analysis: dict) -> dict:
             start = content.find("{")
             if start > 0:
                 content = content[start:]
-            return json.JSONDecoder().raw_decode(content)[0]
+            parsed = json.JSONDecoder().raw_decode(content)[0]
+            if isinstance(parsed, dict) and parsed.get("explanation"):
+                return parsed
         except Exception:
             pass
-    return _fallback(analysis)
+    return _fallback(analysis, locale)
 
-def _fallback(analysis: dict) -> dict:
+
+def _fallback(analysis: dict, locale: str = "en") -> dict:
+    t = load_locale(locale)
     cats = analysis.get("risk_categories", [])
-    if cats:
-        flags_text = "; ".join(c["label"] + ": " + c["explanation"] for c in cats)
+    if cats and locale == "en":
+        flags_text = " ".join(c["label"] + ": " + c["explanation"] for c in cats)
     else:
-        flags_text = "No strong red flags detected."
+        flags_text = ""
     return {
-        "explanation": "Risk level: " + analysis["risk_level"] + ". " + flags_text,
-        "verification_steps": [
-            "Verify the claimed entity on an official source (e.g. sebi.gov.in).",
-            "Check the original source of the message.",
-            "Look for independent evidence for the claims.",
-        ],
-        "safe_next_steps": [
-            "Do not share OTPs, passwords, or UPI PINs.",
-            "Do not transfer money based only on this message.",
-            "Pause and reflect before acting.",
-        ],
-        "uncertainty": "This analysis identifies risk indicators and verification gaps. It does not determine with certainty that the content is fraudulent, and it is not investment advice.",
+        "explanation": (t["detected_intro"] + (" " + flags_text if flags_text else ""))
+        if cats else t["no_flags"],
+        "verification_steps": t["verification_steps"],
+        "safe_next_steps": t["safe_next_steps"],
+        "uncertainty": t["uncertainty"],
     }

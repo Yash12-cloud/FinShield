@@ -1,0 +1,17 @@
+{
+  "risk_level": {"low": "Low concern", "moderate": "Moderate concern", "high": "High concern"},
+  "no_flags": "No clear warning signs were found in this message. Still, verify every financial claim independently.",
+  "detected_intro": "Several warning signs were found. Verify this information before sending money.",
+  "explanation_intro": "Risk level: ",
+  "verification_steps": [
+    "Verify the claimed organization independently using an official source (e.g. sebi.gov.in).",
+    "Check the original source of the message.",
+    "Look for independent evidence for the claims."
+  ],
+  "safe_next_steps": [
+    "Do not share OTPs, passwords or UPI PINs.",
+    "Do not transfer money based only on this message.",
+    "Pause and think before taking any action."
+  ],
+  "uncertainty": "This analysis identifies risk indicators and verification gaps. It cannot determine with certainty that the content is fraudulent from message content alone, and it is not investment advice."
+}

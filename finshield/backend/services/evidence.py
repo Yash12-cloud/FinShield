@@ -41,6 +41,7 @@ def build_evidence(categories, text: str, registration_claims: list):
     link_items = [{"url": u, "status": "Unverified link — do not click blindly"} for u in links]
     return {
         "signals": signals,
+        "verified_information": [],
         "regulatory_claims": regulatory,
         "registration_claims": registration_claims,
         "suspicious_links": link_items,

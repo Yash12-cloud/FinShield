@@ -52,9 +52,23 @@ npm run dev   # http://localhost:5173
 ## API
 
 - `GET /health`
-- `POST /api/v1/analyze/text` — `{"text": "..."}`
-- `POST /api/v1/analyze/claim` — `{"text": "..."}`
-- `POST /api/v1/analyze/image` — multipart file upload (PNG/JPG, OCR via Tesseract)
+- `POST /api/v1/analyze/text` — `{"text": "...", "locale": "en|hi|mr"}`
+- `POST /api/v1/analyze/claim` — `{"text": "...", "locale": "en|hi|mr"}`
+- `POST /api/v1/extract/image` — multipart upload; OCR only, returns editable text before analysis
+- `POST /api/v1/analyze/image` — multipart upload; OCR + analysis in one step
+
+Response also carries an `assessment` object (used by the "How did FinShield assess this?" panel) and an `evidence` object that separates pattern-based signals from `verified_information`, `regulatory_claims`, `registration_claims`, and `suspicious_links`.
+
+## Features
+
+- **Screenshot-first**: upload/drag-drop → OCR → **editable extracted text** → analyze. OCR failure degrades to manual paste, never crashes.
+- **Trilingual UI**: English / हिन्दी / मराठी, expandable via `backend/data/translations/*.json` and `frontend/src/i18n/translations.ts`.
+- **Grouped risk categories**: many phrases collapse into one category (e.g. Urgency / FOMO shows "3 matching signals").
+- **Before You Act**: concrete ✓ do / ✕ do-not actions, harm prevention rather than classification.
+- **Signal vs evidence**: pattern-based signals are labelled as not independently verified; nothing is fabricated.
+- **Transparency panel**: "How did FinShield assess this?" shows extraction, signals, structured assessment, evidence, explanation, and the limitation.
+- **Read aloud**: browser text-to-speech for the explanation.
+- **Graceful degradation**: if Mercury fails → deterministic decision; if the LLM fails → structured result still shown.
 
 Response shape:
 

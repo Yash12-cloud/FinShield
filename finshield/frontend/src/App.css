@@ -159,3 +159,78 @@ li { margin-bottom: 6px; font-size: 14px; line-height: 1.5; }
 }
 .muted { color: var(--muted); font-size: 13px; }
 h4 { margin: 12px 0 6px; font-size: 14px; }
+
+/* ---- Accessibility & Bharat-first improvements ---- */
+body { font-size: 16px; line-height: 1.55; }
+.header-top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.tagline-sub { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+.langs { display: flex; gap: 6px; align-items: flex-start; }
+.lang {
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  min-height: 40px;
+}
+.lang.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.ocr-block { margin-top: 12px; }
+.ocr-block label { font-weight: 600; }
+
+.act-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.act-col { border-radius: 8px; padding: 12px; border: 1px solid var(--border); }
+.act-col.do { background: #f2f8f3; border-left: 3px solid var(--ok); }
+.act-col.dont { background: #fdf3f2; border-left: 3px solid var(--danger); }
+.act-head { font-weight: 700; margin-bottom: 6px; }
+.act-col ul { padding-left: 18px; }
+
+.tts {
+  margin-top: 8px;
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  min-height: 40px;
+}
+
+.transparency-toggle {
+  margin-top: 16px;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  min-height: 44px;
+}
+.transparency {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  background: #fafbfc;
+}
+
+.privacy {
+  max-width: 780px;
+  margin: 16px auto 0;
+  padding: 10px 12px;
+  background: #eef4ef;
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  color: #274434;
+  font-size: 14px;
+}
+
+@media (max-width: 560px) {
+  .act-grid { grid-template-columns: 1fr; }
+  .header h1 { font-size: 24px; }
+  .analyze, .tab, .lang, .tts { font-size: 15px; }
+}
